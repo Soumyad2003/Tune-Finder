@@ -26,16 +26,40 @@ def add_bg_from_local(image_file):
 add_bg_from_local(r'C:\Users\pomys\Desktop\music-recommendation-system\background_image.jpg')
 
 
-def fetch_poster(music_title):
-    response = requests.get("https://saavn.dev/api/search/songs?query={}".format(music_title))
-    data = response.json()
-    return data['data']['results'][0]['image'][2]['url']
+def fetch_id(music_title):
+    try:
+        response = requests.get("https://www.jiosaavn.com/api.php?__call=autocomplete.get&_format=json&_marker=0&cc=in&includeMetaTags=1&query={}".format(music_title))
+        data = response.json()
+        if data['songs']['data']:
+            return data['songs']['data'][0]['id']
+        else:
+            return "Wa2ECpqQ"
+    except Exception:
+        return "Wa2ECpqQ"
 
 
-def fetch_link(music_title):
-    response = requests.get("https://saavn.dev/api/search/songs?query={}".format(music_title))
-    data = response.json()
-    return data['data']['results'][0]['url']
+def fetch_poster(id):
+    try:
+        response = requests.get("https://www.jiosaavn.com/api.php?__call=song.getDetails&cc=in&_marker=0%3F_marker%3D0&_format=json&pids={}".format(id))
+        data = response.json()
+        if data['{}'.format(id)]:
+            return data['{}'.format(id)]['image']
+        else:
+            return "https://c.saavncdn.com/580/Despacito-Latin-2017-150x150.jpg"
+    except Exception:
+        return "https://c.saavncdn.com/580/Despacito-Latin-2017-150x150.jpg"
+
+
+def fetch_link(id):
+    try:
+        response = requests.get("https://www.jiosaavn.com/api.php?__call=song.getDetails&cc=in&_marker=0%3F_marker%3D0&_format=json&pids={}".format(id))
+        data = response.json()
+        if data['{}'.format(id)]:
+            return data['{}'.format(id)]['perma_url']
+        else:
+            return "https://www.jiosaavn.com/song/despacito/JwlZdDdARmI"
+    except Exception:
+        return "https://www.jiosaavn.com/song/despacito/JwlZdDdARmI"
 
 
 def recommend(musics):
@@ -47,9 +71,10 @@ def recommend(musics):
     recommended_music_link = []
     for i in music_list:
         music_title = music.iloc[i[0]].Song
+        id = fetch_id(music_title)
         recommended_music.append(music.iloc[i[0]].Song)
-        recommended_music_poster.append(fetch_poster(music_title))
-        recommended_music_link.append(fetch_link(music_title))
+        recommended_music_poster.append(fetch_poster(id))
+        recommended_music_link.append(fetch_link(id))
     return recommended_music, recommended_music_poster, recommended_music_link
 
 
@@ -66,22 +91,22 @@ if st.button('Recommend'):
 
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.text(names[0])
+        st.markdown(f"<p style='color: white;'>{names[0]}</p>", unsafe_allow_html=True)
         st.image(posters[0])
         st.markdown(f"[Listen on JioSaavn]({link[0]})")
     with col2:
-        st.text(names[1])
+        st.markdown(f"<p style='color: white;'>{names[1]}</p>", unsafe_allow_html=True)
         st.image(posters[1])
         st.markdown(f"[Listen on JioSaavn]({link[1]})")
     with col3:
-        st.text(names[2])
+        st.markdown(f"<p style='color: white;'>{names[2]}</p>", unsafe_allow_html=True)
         st.image(posters[2])
         st.markdown(f"[Listen on JioSaavn]({link[2]})")
     with col4:
-        st.text(names[3])
+        st.markdown(f"<p style='color: white;'>{names[3]}</p>", unsafe_allow_html=True)
         st.image(posters[3])
         st.markdown(f"[Listen on JioSaavn]({link[3]})")
     with col5:
-        st.text(names[4])
+        st.markdown(f"<p style='color: white;'>{names[4]}</p>", unsafe_allow_html=True)
         st.image(posters[4])
         st.markdown(f"[Listen on JioSaavn]({link[4]})")
